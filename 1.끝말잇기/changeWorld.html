@@ -1,0 +1,62 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>끝말잇기</title>
+    <!-- <link rel="stylesheet" type="text/css" href="style.css" /> -->
+    <style></style>
+  </head>
+  <body>
+    <header></header>
+
+    <script type="text/javascript">
+      //while 문으로 나타내기
+      var word = "제로초";
+      while (true) {
+        var answer = prompt(word);
+        if (word[word.length - 1] === answer[0]) {
+          // 맞았을 때
+          alert("딩동댕");
+          word = answer;
+        } else {
+          // 틀렸을 때
+          alert("땡");
+        }
+      }
+
+      //for문으로 나타내기
+      for (var word = "제로초"; true; ) {
+        var answer = prompt(word);
+        if (word[word.length - 1] === answer[0]) {
+          // 맞았을 때
+          alert("딩동댕");
+          word = answer;
+        } else {
+          // 틀렸을 때
+          alert("땡");
+        }
+      }
+    </script>
+    <script type="text/javascript">
+      function chainGame() {
+        var firstWord = "하마";
+        while (true) {
+          var answerWordl = prompt(`${firstWord} 쿵쿵따!`, "");
+
+          if (
+            //charAt() 전달된 파라미터의 index에 위치한 글자를 리턴.
+            answerWordl.charAt(0) === firstWord.charAt(firstWord.length - 1)
+          ) {
+            firstWord = answerWordl;
+          } else if (answerWordl === answerWordl) {
+            break;
+          } else {
+            alert("땡! 다시 입력해주세요.");
+          }
+        }
+      }
+      chainGame();
+    </script>
+  </body>
+</html>

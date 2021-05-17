@@ -1,0 +1,119 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>별찍기</title>
+    <!-- <link rel="stylesheet" type="text/css" href="style.css" /> -->
+    <style></style>
+  </head>
+  <body>
+    <header></header>
+
+    <script type="text/javascript">
+      /*
+      별찍기(1)
+
+      *
+      **
+      ***
+      ****
+
+      */
+
+      //나
+      for (let star = "*"; star.length < 5; star += "*") {
+        console.log(star);
+      }
+
+      //제로초
+      for (let star = 1; star < 5; star += 1) {
+        // .repeat()  문자열을 주어진 횟수만큼 반복해 붙인 새로운 문자열을 반환
+        console.log("*".repeat(star));
+      }
+
+      /*
+      별찍기(2)
+
+      ****
+      ***
+      **
+      *
+
+      */
+
+      //나
+      for (let star = "****"; star.length > 0; star = star.slice(0, -1)) {
+        console.log(star);
+      }
+
+      //제로초
+      for (let star = 5; star > 1; star -= 1) {
+        console.log("*".repeat(star));
+      }
+
+      /*
+      별찍기(3)
+
+      *****
+       ****
+        ***
+         **
+          *
+          
+      */
+
+      //나
+      let blank = 0;
+      for (let star = 5; star > 0; star -= 1) {
+        console.log(" ".repeat(blank) + "*".repeat(star));
+        blank += 1;
+      }
+
+      //제로초
+      for (let star = 5; star > 0; star -= 1) {
+        console.log(" ".repeat(5 - star) + "*".repeat(star));
+      }
+
+      /*
+      별찍기(4)
+
+      *********
+       *******
+        *****
+         ***
+          *
+          
+      */
+
+      //나
+      let blank = 0;
+      for (let star = 9; star >= 1; star -= 2) {
+        console.log(" ".repeat(blank) + "*".repeat(star));
+        blank += 1;
+      }
+
+      //제로초
+      for (let star = 9; star >= 1; star -= 2) {
+        console.log(" ".repeat((9 - star) / 2) + "*".repeat(star));
+      }
+
+      /*
+      별찍기(5)
+
+          *
+         ***
+        *****
+         ***
+          *
+          
+      */
+
+      //나
+      for (let star = 9; star >= 1; star -= 2) {
+        console.log(" ".repeat(blank) + "*".repeat(star));
+        blank += 1;
+      }
+    </script>
+  </body>
+</html>
