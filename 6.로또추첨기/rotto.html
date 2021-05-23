@@ -1,0 +1,135 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>로또추첨기</title>
+  </head>
+  <body>
+    <header></header>
+    <h1>로또 추첨기</h1>
+
+    <h2>당첨 숫자</h2>
+    <div id="result-area"></div>
+
+    <h2>보너스 숫자</h2>
+    <div class="bonus-area"></div>
+
+    <script type="text/javascript">
+      //[1]숫자 생성
+      var candidate = Array(45)
+        .fill()
+        .map((arr, i) => {
+          // (arr: 현재값, i:인덱스)
+          return i + 1;
+        });
+      // Array(숫자)로 빈 배열을 만들 수 있다.
+      // var candidate = Array(45) 생성시 empty x 45 로 생서되는데 45개의 empty가 생성되어 반복문에서 사용이 불가능 하다.
+      // var candidate = Array(45).fill()  =>  45개의 undefined가 생성됨.
+
+      // 또 다른 방법
+      // candidate.forEach(function (요소, 인덱스) {
+      //   candidate[인덱스] = 인덱스 + 1;
+      // });
+
+      //[2]숫자 뽑기
+      var shuffle = [];
+      // for문의 사용은 반복문을 몇번 돌려야하는지 알 때. while문은 반복문을 몇번 돌려야하는지 모를 때 or 기준값이 변경될 때.
+      while (candidate.length > 0) {
+        var randomNumber = candidate.splice(
+          // splice: 배열의 기존 요소를 삭제 또는 교체하거나 새 요소를 추가하여 배열의 내용을 변경
+          // Math.floor: 주어진 수 이하의 가장 큰 정수를 반환
+          Math.floor(Math.random() * candidate.length),
+          1
+        )[0];
+        shuffle.push(randomNumber);
+      }
+      var bonus = shuffle[shuffle.length - 1];
+      // [slice]: 0부터 6번째 자리까지 배열을 자름.(마지막 6은 미포함)
+      var winningNumbers = shuffle.slice(0, 6);
+
+      // [sort]
+      // 정렬
+      // p=이전 숫자, c= 현재 숫자
+      // p - c를 해서 그 값이 0 보다 클 경우 순서를 변경한다.
+      // winningNumbers.sort(function (p, c) {
+      //   return p - c;
+      // });
+      // 내림차순 정렬
+      // winningNumbers.sort(function (p, c) {
+      //   return c - p;
+      // });
+
+      //[3]뽑은 공 화면에 표시
+
+      // getElementById: id값으로 태그 찾음.
+      // getElementByTagName: 태그 이름으로 찾음.
+      // qureyselector('.class' or '#id')
+      var resultArea = document.getElementById("result-area");
+
+      function ballStyle(number, 결과창) {
+        var ball = document.createElement("div");
+        ball.textContent = number;
+        ball.style.display = "inline-block";
+        ball.style.marginRight = "5px";
+        ball.style.border = "1px solid black";
+        ball.style.borderRadius = "50%";
+        ball.style.width = "30px";
+        ball.style.height = "30px";
+        ball.style.textAlign = "center";
+        ball.style.lineHeight = "30px";
+        var background;
+        if (number <= 10) {
+          background = "red";
+        } else if (number <= 20) {
+          background = "orange";
+        } else if (number <= 30) {
+          background = "yellow";
+        } else if (number <= 40) {
+          background = "blue";
+        } else {
+          background = "green";
+        }
+        ball.style.background = background;
+        결과창.appendChild(ball);
+      }
+
+      /*
+      // ※클러져 해결까지 아래 코드 사용 불가
+      // ※for문 안에 비동기함수가 있는 경우 클로져 문제가 발생된다.
+
+      for (var i = 0; i < winningNumbers.length; i++) {
+        setTimeout(function 비동기콜백함수() {
+          var ball = document.createElement("div");
+          ball.textContent = winningNumbers[i];
+          resultArea.appendChild(ball);
+        }, 1000); // 밀리초 단위
+      }
+      */
+
+      setTimeout(function 비동기콜백함수() {
+        ballStyle(winningNumbers[0], resultArea);
+      }, 1000);
+      setTimeout(function 비동기콜백함수() {
+        ballStyle(winningNumbers[1], resultArea);
+      }, 1500);
+      setTimeout(function 비동기콜백함수() {
+        ballStyle(winningNumbers[2], resultArea);
+      }, 2000);
+      setTimeout(function 비동기콜백함수() {
+        ballStyle(winningNumbers[3], resultArea);
+      }, 2500);
+      setTimeout(function 비동기콜백함수() {
+        ballStyle(winningNumbers[4], resultArea);
+      }, 3000);
+      setTimeout(function 비동기콜백함수() {
+        ballStyle(winningNumbers[5], resultArea);
+      }, 3500);
+
+      setTimeout(function 비동기콜백함수() {
+        var bonusArea = document.getElementsByClassName("bonus-area")[0]; // 클래스는 여러개 사용가능하기 때문에 배열의 첫번째를 사용한다는 의미.
+        ballStyle(bonus, bonusArea);
+      }, 4000);
+    </script>
+  </body>
+</html>
