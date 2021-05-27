@@ -1,0 +1,103 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>지뢰찾기</title>
+    <style>
+      table {
+        border-collapse: collapse;
+      }
+      tbody td {
+        width: 30px;
+        height: 30px;
+        border: 1px solid #000;
+      }
+    </style>
+  </head>
+  <body>
+    <header></header>
+    <input id="hor" type="number" placeholder="가로" value="10" />
+    <input id="ver" type="number" placeholder="세로" value="10" />
+    <input id="mine" type="number" placeholder="지뢰" value="20" />
+    <button id="exec">실행</button>
+    <table id="table">
+      <thead>
+        <tr>
+          <td><span id="timer">0</span>초</td>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <script type="text/javascript">
+      var tbody = document.querySelector("#table tbody");
+      var dataset = [];
+
+      document.querySelector("#exec").addEventListener("click", function () {
+        var hor = parseInt(document.querySelector("#hor").value);
+        var ver = parseInt(document.querySelector("#ver").value);
+        var mine = parseInt(document.querySelector("#mine").value);
+
+        // 지뢰 위치 뽑기
+        var candidate = Array(hor * ver)
+          .fill()
+          .map(function (element, index) {
+            return index;
+          });
+        var shuffle = [];
+        while (candidate.length > hor * ver - mine) {
+          var randomNumber = candidate.splice(
+            Math.floor(Math.random() * candidate.length),
+            1
+          )[0];
+          shuffle.push(randomNumber);
+        }
+        console.log(shuffle);
+
+        // 지뢰 테이블 만들기
+        for (var i = 0; i < ver; i++) {
+          var arr = [];
+          var tr = document.createElement("tr");
+          dataset.push(arr);
+          for (var j = 0; j < hor; j++) {
+            arr.push(1);
+            var td = document.createElement("td");
+            // contextmenu: 사용자가 요소를 마우스 오른쪽 단추로 클릭할 때 발생
+            td.addEventListener("contextmenu", function (e) {
+              e.preventDefault();
+              var parentTr = e.currentTarget.parentNode;
+              var parentTbody = e.currentTarget.parentNode.parentNode;
+              var call = Array.prototype.indexOf.call(
+                parentTr.children,
+                /* 
+                  [ e.target과 차이]
+                  e.currentTarget : eventListener 가 달린 대상
+                  e.target: 실제 event가 발생 된 대상
+                */
+                e.currentTarget
+              );
+              var row = Array.prototype.indexOf.call(
+                parentTbody.children,
+                parentTr
+              );
+              e.currentTarget.textContent = "!";
+              dataset[row][call] = "!";
+            });
+            tr.appendChild(td);
+          }
+          tbody.appendChild(tr);
+        }
+
+        // 지뢰 심기
+        for (var k = 0; k < shuffle.length; k++) {
+          // 예 60
+          var length = Math.floor(shuffle[k] / ver); // 예 7 -> 6
+          var width = shuffle[k] % ver; // 예 0 -> 0
+
+          tbody.children[length].children[width].textContent = "X";
+          dataset[length][width] = "X";
+        }
+      });
+    </script>
+  </body>
+</html>
