@@ -34,6 +34,7 @@
       var dataset = [];
 
       document.querySelector("#exec").addEventListener("click", function () {
+        tbody.innerHTML = "";
         var hor = parseInt(document.querySelector("#hor").value);
         var ver = parseInt(document.querySelector("#ver").value);
         var mine = parseInt(document.querySelector("#mine").value);
@@ -52,7 +53,6 @@
           )[0];
           shuffle.push(randomNumber);
         }
-        console.log(shuffle);
 
         // 지뢰 테이블 만들기
         for (var i = 0; i < ver; i++) {
@@ -60,7 +60,7 @@
           var tr = document.createElement("tr");
           dataset.push(arr);
           for (var j = 0; j < hor; j++) {
-            arr.push(1);
+            arr.push(1); // 데이터는 빈칸일 때 1을 넣어줘야 한다.
             var td = document.createElement("td");
             // contextmenu: 사용자가 요소를 마우스 오른쪽 단추로 클릭할 때 발생
             td.addEventListener("contextmenu", function (e) {
@@ -69,7 +69,7 @@
               var parentTbody = e.currentTarget.parentNode.parentNode;
               var call = Array.prototype.indexOf.call(
                 parentTr.children,
-                /* 
+                /*
                   [ e.target과 차이]
                   e.currentTarget : eventListener 가 달린 대상
                   e.target: 실제 event가 발생 된 대상
@@ -80,8 +80,64 @@
                 parentTbody.children,
                 parentTr
               );
-              e.currentTarget.textContent = "!";
-              dataset[row][call] = "!";
+              if (
+                e.currentTarget.textContent === "" ||
+                e.currentTarget.textContent === "X"
+              ) {
+                e.currentTarget.textContent = "!";
+              } else if (e.currentTarget.textContent === "!") {
+                e.currentTarget.textContent = "?";
+              } else if (e.currentTarget.textContent === "?") {
+                if (dataset[row][call] === 1) {
+                  e.currentTarget.textContent = "";
+                } else if (dataset[row][call] === "X") {
+                  e.currentTarget.textContent = "X";
+                }
+              }
+            });
+            // 클릭했을 때 주변 지뢰 갯수
+            td.addEventListener("click", function (e) {
+              var parentTr = e.currentTarget.parentNode;
+              var parentTbody = e.currentTarget.parentNode.parentNode;
+              var call = Array.prototype.indexOf.call(
+                parentTr.children,
+                e.currentTarget
+              );
+              var row = Array.prototype.indexOf.call(
+                parentTbody.children,
+                parentTr
+              );
+              if (dataset[row][call] === "X") {
+                e.currentTarget.textContent = "펑!";
+              } else {
+                var periphery = [
+                  dataset[row][call - 1],
+                  dataset[row][call + 1],
+                ];
+                if (dataset[row - 1]) {
+                  // concat은 배열과 배열을 합쳐서 새로운 배열을 만든다.
+                  // periphery = periphery.concat(
+                  //   dataset[row - 1][call - 1],
+                  //   dataset[row - 1][call],
+                  //   dataset[row - 1][call + 1]
+                  // );
+                  periphery.push(
+                    dataset[row - 1][call - 1],
+                    dataset[row - 1][call],
+                    dataset[row - 1][call + 1]
+                  );
+                }
+                if (dataset[row + 1]) {
+                  periphery.concat(
+                    dataset[row + 1][call - 1],
+                    dataset[row + 1][call],
+                    dataset[row + 1][call + 1]
+                  );
+                }
+                e.currentTarget.textContent = periphery.filter(function (v) {
+                  return v === "X";
+                }).length;
+              }
             });
             tr.appendChild(td);
           }
@@ -98,6 +154,10 @@
           dataset[length][width] = "X";
         }
       });
+
+      //스코프: 식별자의 유효 범위
+      //스코프체인: 스코프간의 상하 관계
+      //렉시컬 스코핑(정적 스코핑): 코드가 적힌 순간 스코프가 정해지는 것을 가르킴.
     </script>
   </body>
 </html>
