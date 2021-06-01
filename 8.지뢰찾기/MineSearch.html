@@ -12,6 +12,16 @@
         width: 30px;
         height: 30px;
         border: 1px solid #000;
+        background-color: #444;
+      }
+      td.opened {
+        background-color: #fff;
+      }
+      td.flag {
+        background-color: rgb(255, 0, 0);
+      }
+      td.question {
+        background-color: rgb(250, 162, 0);
       }
     </style>
   </head>
@@ -29,17 +39,34 @@
       </thead>
       <tbody></tbody>
     </table>
+    <div id="result"></div>
     <script type="text/javascript">
       var tbody = document.querySelector("#table tbody");
       var dataset = [];
+      var stopFlag = false; // 중단 플래그
+      var openeCall = 0; // 열은 칸
+      var codeDic = {
+        opened: -1, //연 칸
+        question: -2, //물음표
+        flag: -3, //깃발
+        flagMine: -4,
+        questionMine: -5,
+        mine: 1, //지뢰
+        normal: 0, //보통 칸
+      };
 
       document.querySelector("#exec").addEventListener("click", function () {
+        // [C]내부 초기화
         tbody.innerHTML = "";
+        document.querySelector("#result").textContent = "";
+        dataset = [];
+        stopFlag = false;
+        openeCall = 0;
         var hor = parseInt(document.querySelector("#hor").value);
         var ver = parseInt(document.querySelector("#ver").value);
         var mine = parseInt(document.querySelector("#mine").value);
 
-        // 지뢰 위치 뽑기
+        // [C]지뢰 위치 뽑기
         var candidate = Array(hor * ver)
           .fill()
           .map(function (element, index) {
@@ -54,17 +81,20 @@
           shuffle.push(randomNumber);
         }
 
-        // 지뢰 테이블 만들기
+        // [C]지뢰 테이블 만들기
         for (var i = 0; i < ver; i++) {
           var arr = [];
           var tr = document.createElement("tr");
           dataset.push(arr);
           for (var j = 0; j < hor; j++) {
-            arr.push(1); // 데이터는 빈칸일 때 1을 넣어줘야 한다.
+            arr.push(codeDic.normal);
             var td = document.createElement("td");
-            // contextmenu: 사용자가 요소를 마우스 오른쪽 단추로 클릭할 때 발생
             td.addEventListener("contextmenu", function (e) {
+              // contextmenu: 사용자가 요소를 마우스 오른쪽 단추로 클릭할 때 발생
               e.preventDefault();
+              if (stopFlag) {
+                return; // return으로 함수의 실행을 중간에 끊을 수 있다.
+              }
               var parentTr = e.currentTarget.parentNode;
               var parentTbody = e.currentTarget.parentNode.parentNode;
               var call = Array.prototype.indexOf.call(
@@ -80,26 +110,50 @@
                 parentTbody.children,
                 parentTr
               );
+
               if (
                 e.currentTarget.textContent === "" ||
                 e.currentTarget.textContent === "X"
               ) {
                 e.currentTarget.textContent = "!";
+                e.currentTarget.classList.add("flag");
+                if (dataset[row][call] === codeDic.mine) {
+                  dataset[row][call] = codeDic.flagMine;
+                } else {
+                  dataset[row][call] = codeDic.flag;
+                }
               } else if (e.currentTarget.textContent === "!") {
                 e.currentTarget.textContent = "?";
+                e.currentTarget.classList.remove("flag");
+                e.currentTarget.classList.add("question");
+                if (dataset[row][call] === codeDic.flagMine) {
+                  dataset[row][call] = codeDic.questionMine;
+                } else {
+                  dataset[row][call] = codeDic.question;
+                }
               } else if (e.currentTarget.textContent === "?") {
-                if (dataset[row][call] === 1) {
-                  e.currentTarget.textContent = "";
-                } else if (dataset[row][call] === "X") {
+                e.currentTarget.classList.remove("question");
+                if (dataset[row][call] === codeDic.questionMine) {
                   e.currentTarget.textContent = "X";
+                  dataset[row][call] = codeDic.mine;
+                } else {
+                  e.currentTarget.textContent = "";
+                  dataset[row][call] = codeDic.normal;
                 }
               }
             });
-            // 클릭했을 때 주변 지뢰 갯수
             td.addEventListener("click", function (e) {
+              if (stopFlag) {
+                return;
+              }
               var parentTr = e.currentTarget.parentNode;
               var parentTbody = e.currentTarget.parentNode.parentNode;
+              // indexOf 는 배열에만 사용할 수있음
+              // Array.prototype.indexOf.call 를 사용해 배열이 아님에도 배열처럼 indexOf 를 사용할 수 있도록
               var call = Array.prototype.indexOf.call(
+                // arr.indexOf(searchElement[, fromIndex])
+                // searchElement: 배열에서 찾을 요소
+                // fromIndex: 검색을 시작할 색인
                 parentTr.children,
                 e.currentTarget
               );
@@ -107,36 +161,108 @@
                 parentTbody.children,
                 parentTr
               );
-              if (dataset[row][call] === "X") {
+              if (
+                [
+                  codeDic.opened,
+                  codeDic.flag,
+                  codeDic.flagMine,
+                  codeDic.question,
+                  codeDic.questionMine,
+                ].includes(dataset[row][call])
+              ) {
+                return;
+              }
+              // 태그.classList 로 태그의 클래스에 접근
+              e.currentTarget.classList.add("opened");
+              openeCall += 1;
+              if (dataset[row][call] === codeDic.mine) {
                 e.currentTarget.textContent = "펑!";
+                document.querySelector("#result").textContent = "실패! ㅠㅠ";
+                stopFlag = true;
               } else {
+                // [C]지뢰가 아닌 경우 주변 지뢰 개수
+
+                // periphery = 주변
                 var periphery = [
+                  // 같은 줄에 있는 칸
                   dataset[row][call - 1],
                   dataset[row][call + 1],
                 ];
                 if (dataset[row - 1]) {
-                  // concat은 배열과 배열을 합쳐서 새로운 배열을 만든다.
-                  // periphery = periphery.concat(
-                  //   dataset[row - 1][call - 1],
-                  //   dataset[row - 1][call],
-                  //   dataset[row - 1][call + 1]
-                  // );
-                  periphery.push(
+                  periphery = periphery.concat([
+                    // concat은 배열과 배열을 합쳐서 새로운 배열을 만든다.
+                    // periphery = periphery.concat(
+                    //   dataset[row - 1][call - 1],
+                    //   dataset[row - 1][call],
+                    //   dataset[row - 1][call + 1]
+                    // );
                     dataset[row - 1][call - 1],
                     dataset[row - 1][call],
-                    dataset[row - 1][call + 1]
-                  );
+                    dataset[row - 1][call + 1],
+                  ]);
                 }
                 if (dataset[row + 1]) {
-                  periphery.concat(
+                  periphery = periphery.concat([
                     dataset[row + 1][call - 1],
                     dataset[row + 1][call],
-                    dataset[row + 1][call + 1]
-                  );
+                    dataset[row + 1][call + 1],
+                  ]);
                 }
-                e.currentTarget.textContent = periphery.filter(function (v) {
-                  return v === "X";
+                var peripheryNum = periphery.filter(function (v) {
+                  return v === codeDic.mine;
                 }).length;
+                // 조건문 false값: '', 0, NaN, null, undefind, false
+                // 조건문이 거짓이면 뒤에 실행
+                e.currentTarget.textContent = peripheryNum || "";
+                dataset[row][call] = codeDic.opened;
+
+                if (peripheryNum === 0) {
+                  // 주변지뢰 갯수가 0 일때 재귀 함수 사용
+                  // 재귀함수로 반복문의 역활을 할 수 있다. (무한반복이 되지 않도록 조건을 걸어줘야 함.)
+                  // 재귀 형식으로 코딩할 때는 효율성을 체크해야한다.
+                  var peripheryCol = [];
+                  if (tbody.children[row - 1]) {
+                    peripheryCol = peripheryCol.concat([
+                      tbody.children[row - 1].children[call - 1],
+                      tbody.children[row - 1].children[call],
+                      tbody.children[row - 1].children[call + 1],
+                    ]);
+                  }
+                  peripheryCol = peripheryCol.concat([
+                    tbody.children[row].children[call - 1],
+                    tbody.children[row].children[call + 1],
+                  ]);
+                  if (tbody.children[row + 1]) {
+                    peripheryCol = peripheryCol.concat([
+                      tbody.children[row + 1].children[call - 1],
+                      tbody.children[row + 1].children[call],
+                      tbody.children[row + 1].children[call + 1],
+                    ]);
+                  }
+
+                  // arr.filter((v) => !!v) 배열에서 undefind 나 null 과 같은 빈문자열을 제거하는 코드
+                  peripheryCol
+                    .filter((v) => !!v)
+                    .forEach(function (side) {
+                      var parentTr = side.parentNode;
+                      var parentTbody = side.parentNode.parentNode;
+                      var sideCall = Array.prototype.indexOf.call(
+                        parentTr.children,
+                        side
+                      );
+                      var sideRow = Array.prototype.indexOf.call(
+                        parentTbody.children,
+                        parentTr
+                      );
+                      if (dataset[sideRow][sideCall] !== codeDic.opened) {
+                        side.click();
+                      }
+                    });
+                }
+              }
+              if (openeCall === hor * ver - mine) {
+                stopFlag = true;
+                document.querySelector("#result").textContent = "승리!";
               }
             });
             tr.appendChild(td);
@@ -144,20 +270,39 @@
           tbody.appendChild(tr);
         }
 
-        // 지뢰 심기
+        // [C]지뢰 심기
         for (var k = 0; k < shuffle.length; k++) {
-          // 예 60
-          var length = Math.floor(shuffle[k] / ver); // 예 7 -> 6
-          var width = shuffle[k] % ver; // 예 0 -> 0
+          var length = Math.floor(shuffle[k] / ver);
+          var width = shuffle[k] % ver;
 
           tbody.children[length].children[width].textContent = "X";
-          dataset[length][width] = "X";
+          dataset[length][width] = codeDic.mine;
         }
       });
-
-      //스코프: 식별자의 유효 범위
-      //스코프체인: 스코프간의 상하 관계
-      //렉시컬 스코핑(정적 스코핑): 코드가 적힌 순간 스코프가 정해지는 것을 가르킴.
     </script>
   </body>
 </html>
+
+<!-- 
+  스코프: 식별자의 유효 범위
+  스코프체인: 스코프간의 상하 관계
+  렉시컬 스코핑(정적 스코핑): 코드가 적힌 순간 스코프가 정해지는 것을 가르킴. 
+
+  함수와 함수가 접근할 수 있는 스코프가 클로저 관계를 맺는다.
+  반복문과 비동기 함수가 만날 때 클로저 문제가 자주 발생한다.
+
+  for(var i = 0; i < 100; i++) {
+    setTimeout(function() {
+      consol.log(i);
+    }, i * 1000); 여기서의 i는 174번째의 i로 변함이 없음
+  }
+
+  클로저 해결: 새로운 스코프를 추가하여 반복마다 값을 저장하는 방식
+  for(var i = 0; i < 100; i++) {
+    (function (j) {
+      setTimeout(function() {
+        consol.log(i);
+      }, j * 1000); 
+    })(i)
+  }
+-->
