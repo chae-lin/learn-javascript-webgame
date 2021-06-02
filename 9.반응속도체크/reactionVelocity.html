@@ -1,0 +1,119 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>반응 속도</title>
+    <style>
+      #screen {
+        width: 300px;
+        height: 300px;
+        line-height: 300px;
+        text-align: center;
+        user-select: none;
+      }
+      #screen.waiting {
+        background-color: rgb(255, 209, 209);
+      }
+      #screen.ready {
+        background-color: rgb(252, 250, 115);
+      }
+      #screen.now {
+        background-color: rgb(115, 252, 138);
+      }
+    </style>
+  </head>
+  <body>
+    <header></header>
+    <div id="screen" class="waiting">클릭하면 시작합니다.</div>
+    <script type="text/javascript">
+      // var, new, if, function 등 예약어는 변수명으로 사용이 불가능하다.
+      var screen = document.querySelector("#screen");
+      var condition = {};
+      var startTime; // 선언만 하면 undefinde
+      var endTime;
+      var record = [];
+      var timeOut;
+
+      // click이벤트의 callback 함수는 비동기 실행 시기를 특정할 수 없음
+      // 비동기함수안의 함수는 호출스택에 in했다가 실행이 끝나면 out된다.
+      screen.addEventListener("click", function () {
+        // classList.contains 로 현재 클래스를 파악 가능.
+        if (screen.classList.contains("waiting")) {
+          screen.classList.remove("waiting");
+          screen.classList.add("ready");
+          screen.textContent = "초록색이 되면 클릭하세요.";
+          timeOut = setTimeout(function () {
+            startTime = new Date();
+            screen.click();
+          }, Math.floor(Math.random() * 1000) + 2000);
+        } else if (screen.classList.contains("ready")) {
+          // 준비 상태
+          if (!startTime) {
+            // if문 안에서 undefined, 0, NaN, null, false, '' 는 false 값
+            // !는 true → flase, flase → true 로 바꾸는 연산자.
+
+            //부정출발
+            clearTimeout(timeOut); // clearTimeout로 setTimeout을 취소
+            alert("너무 성급하세요");
+            screen.classList.remove("ready");
+            screen.classList.add("waiting");
+            screen.textContent = "클릭하면 시작합니다.";
+          } else {
+            screen.classList.remove("ready");
+            screen.classList.add("now");
+            screen.textContent = "클릭하세요.";
+          }
+        } else if (screen.classList.contains("now")) {
+          // 시작 상태
+          endTime = new Date();
+          console.log(endTime - startTime);
+          record.push(endTime - startTime);
+          startTime = null;
+          endTime = null;
+          screen.classList.remove("now");
+          screen.classList.add("waiting");
+          screen.textContent = "클릭하면 시작합니다.";
+        }
+      });
+    </script>
+  </body>
+</html>
+
+<!--
+
+[시간을 구하는 방법]
+1. new Date(); : new date를 하는 순간 그 시각이 저장됨.
+var startTime = new Date();
+var endTime = new Date();
+(endTime - startTime) / 1000;
+
+2. console.time : 실제 서비스보다 디버깅 시간 체크용으로 사용
+console.time('시간');
+console.timeEnd('시간')
+
+3. performance.now() : performance.now는 new Date 보다 정밀한 시간을 확인
+var startTime = performance.now();
+var endTime = performance.now();
+(andTime - startTime) / 1000;
+
+[호출 스택 (call stack)]
+- last in first out(LIFO) 후입선출 구조
+- 함수가 끝나면 빠져나간다. }를 기준으로 생각
+
+[재귀함수에서의 호출 스택 (call stack)]
+function a() {
+    a();
+}
+a();
+- 공간이 한정되어 있어 a가 계속 쌓이다가 공간이 다 차게되는 경우 Maximum call stack exceeded 에러 발생!
+- 자바스크립트에서는 재귀를 사용하면 에러가 발생할 수 있다.
+function a() {
+    setTimeout(function(){
+        a();
+    }, 0)
+}
+a();
+- 이를 해결하기 위해 비동기로 호출 스택을 비워준다.
+
+-->
