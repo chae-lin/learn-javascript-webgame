@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>틱택톡만들기</title>
+    <style>
+      td {
+        width: 50px;
+        height: 50px;
+        border: 1px solid #000;
+        text-align: center;
+        font-size: 35px;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <table>
+      <tbody id="tbody">
+        <tr class="tr">
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr class="tr">
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr class="tr">
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+    <div id="result"></div>
+    <script type="text/javascript">
+      const tbody = document.querySelector("#tbody");
+      const trArray = Array.from(document.querySelectorAll("tr"));
+      const result = document.querySelector("#result");
+      var tdArray = [];
+      var turn = "X";
+      var gamOver = false;
+      var counter = 0;
+
+      for (var i = 0; i < trArray.length; i++) {
+        tdArray[i] = Array.from(trArray[i].getElementsByTagName("td"));
+      }
+
+      // tdArray.forEach((e) =>
+      //   e.addEventListener("click", (event) => {
+      //   })
+      // );
+
+      // 클릭한 것의 자식 노드 확인
+      tbody.addEventListener("click", (e) => {
+        // console.log(e.path);
+        // for (let i = 0; i < e.path.length; i++) {
+        //   const item = e.path[i];
+        //   console.log(item.nodeName);
+        // }
+      });
+
+      // 리셋 함수
+      function reset() {
+        setTimeout(() => {
+          turn = "X";
+          result.textContent = "";
+          gamOver = false;
+          counter = 0;
+          tdArray.forEach(function (trs) {
+            trs.forEach(function (td) {
+              td.textContent = "";
+            });
+          });
+        }, 2000);
+      }
+
+      tdArray.forEach((trs) => {
+        trs.forEach((td) => {
+          td.addEventListener("click", (event) => {
+            var trIndex = trArray.indexOf(event.currentTarget.parentNode);
+            var tdIndex = tdArray[trIndex].indexOf(event.currentTarget);
+
+            // 공백이 아닐 경우 턴 표시
+            if (event.currentTarget.textContent === "" && !gamOver) {
+              event.currentTarget.textContent = turn;
+              counter += 1;
+            }
+
+            if (
+              tdArray[trIndex][0].textContent === turn &&
+              tdArray[trIndex][1].textContent === turn &&
+              tdArray[trIndex][2].textContent === turn
+            ) {
+              gamOver = true;
+            }
+            if (
+              tdArray[0][tdIndex].textContent === turn &&
+              tdArray[1][tdIndex].textContent === turn &&
+              tdArray[2][tdIndex].textContent === turn
+            ) {
+              gamOver = true;
+            }
+            if (
+              tdArray[0][0].textContent === turn &&
+              tdArray[1][1].textContent === turn &&
+              tdArray[2][2].textContent === turn
+            ) {
+              gamOver = true;
+            }
+            if (
+              tdArray[0][2].textContent === turn &&
+              tdArray[1][1].textContent === turn &&
+              tdArray[2][0].textContent === turn
+            ) {
+              gamOver = true;
+            }
+
+            if (counter === 9 && !gamOver) {
+              result.textContent = "무승부입니다.";
+              reset();
+            }
+
+            if (gamOver) {
+              result.textContent = turn + "님이 승리!";
+              reset();
+            } else {
+              // 턴 바꾸기
+              if (turn === "X") {
+                turn = "O";
+              } else {
+                turn = "X";
+              }
+            }
+          });
+        });
+      });
+
+      // for ...in  객체 순환
+      // for ...of  배열 값 순환
+    </script>
+  </body>
+</html>
