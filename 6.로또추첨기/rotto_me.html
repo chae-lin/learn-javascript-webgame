@@ -1,0 +1,83 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>로또를 만들어보자</title>
+    <!-- <link rel="stylesheet" type="text/css" href="style.css" /> -->
+    <style></style>
+  </head>
+  <body>
+    <header>
+      <style>
+        .ball-wrap {
+          height: 50px;
+          margin-bottom: 10px;
+        }
+        .ball {
+          display: inline-block;
+          width: 50px;
+          height: 50px;
+          text-align: center;
+          line-height: 50px;
+          color: #b5b5b5;
+          border-radius: 50%;
+        }
+      </style>
+    </header>
+    <div class="ball-wrap"></div>
+    <button class="reset">다시 실행</button>
+    <script type="text/javascript">
+      var ballWrap = document.querySelector(".ball-wrap");
+      var reset = document.querySelector(".reset");
+
+      function runRotto() {
+        // 숫자 생성
+        var number = [];
+        var candidate = Math.floor(Math.random() * 46);
+        while (number.length < 7) {
+          // includes는 배열이 해당 값을 포함여부를 불리언 형태로 return한다.
+          if (!number.includes(candidate)) {
+            number.push(candidate);
+          }
+          candidate = Math.floor(Math.random() * 46);
+        }
+
+        // 볼 색상 설정
+        function ballStyle(number) {
+          var ball = document.createElement("span");
+          ball.classList.add("ball");
+          ball.textContent = number;
+          var background;
+          if (number <= 10) {
+            background = "yellow";
+          } else if (number <= 20) {
+            background = "blue";
+          } else if (number <= 30) {
+            background = "red";
+          } else if (number <= 40) {
+            background = "gray";
+          } else {
+            background = "green";
+          }
+          ball.style.background = background;
+          ballWrap.append(ball);
+        }
+
+        // 숫자 볼에 넣기
+        // i를 var로 설정하게 될 경우 클로저(Closure) 문제를 맞이한다.
+        for (let i = 0; i < number.length; i++) {
+          setTimeout(() => {
+            ballStyle(number[i]);
+          }, 1000 + 1000 * i);
+        }
+      }
+      runRotto();
+
+      reset.addEventListener("click", function () {
+        ballWrap.innerHTML = "";
+        runRotto();
+      });
+    </script>
+  </body>
+</html>
